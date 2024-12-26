@@ -1,0 +1,22 @@
+{
+	"name": "drivers_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ergastAPI",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"endpoint": "drivers.json",
+				"limit": "1000"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "drivers.json"
+			}
+		},
+		"schema": {}
+	}
+}
