@@ -1,0 +1,22 @@
+{
+	"name": "results_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ergastAPI",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"endpoint": "results.json",
+				"limit": "1000"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "results.json"
+			}
+		},
+		"schema": {}
+	}
+}
