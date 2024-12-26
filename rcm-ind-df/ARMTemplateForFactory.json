@@ -235,7 +235,6 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"container": "bronze",
-									"filepath": "''",
 									"filename": "drivers.json"
 								}
 							}
@@ -288,7 +287,6 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"container": "bronze",
-									"filepath": "''",
 									"filename": "results.json"
 								}
 							}
@@ -1196,9 +1194,6 @@
 					"container": {
 						"type": "string"
 					},
-					"filepath": {
-						"type": "string"
-					},
 					"filename": {
 						"type": "string"
 					}
@@ -1210,10 +1205,6 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": {
 							"value": "@dataset().filename",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().filepath",
 							"type": "Expression"
 						},
 						"fileSystem": {
@@ -1442,9 +1433,6 @@
 					"container": {
 						"type": "string"
 					},
-					"filepath": {
-						"type": "string"
-					},
 					"filename": {
 						"type": "string"
 					}
@@ -1456,10 +1444,6 @@
 						"type": "AzureBlobFSLocation",
 						"fileName": {
 							"value": "@dataset().filename",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().filepath",
 							"type": "Expression"
 						},
 						"fileSystem": {
