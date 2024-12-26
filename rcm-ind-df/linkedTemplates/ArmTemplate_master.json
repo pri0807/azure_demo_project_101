@@ -7,9 +7,21 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "rcm-ind-df"
 		},
+		"formula1_delta_lake_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'formula1_delta_lake'"
+		},
 		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
 			"type": "string",
 			"defaultValue": "1221-104515-oxspt2q7"
+		},
+		"ergastAPI_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{concat('http://ergast.com/api/f1/',linkedService().endpoint,'?','limit=',linkedService().limit)}"
+		},
+		"formula1_delta_lake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://formuladldev.dfs.core.windows.net/"
 		},
 		"rcminddb_properties_typeProperties_server": {
 			"type": "string",
@@ -57,6 +69,15 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"formula1_delta_lake_accountKey": {
+						"value": "[parameters('formula1_delta_lake_accountKey')]"
+					},
+					"ergastAPI_properties_typeProperties_url": {
+						"value": "[parameters('ergastAPI_properties_typeProperties_url')]"
+					},
+					"formula1_delta_lake_properties_typeProperties_url": {
+						"value": "[parameters('formula1_delta_lake_properties_typeProperties_url')]"
 					},
 					"rcmindkeyvalutdev_properties_typeProperties_baseUrl": {
 						"value": "[parameters('rcmindkeyvalutdev_properties_typeProperties_baseUrl')]"

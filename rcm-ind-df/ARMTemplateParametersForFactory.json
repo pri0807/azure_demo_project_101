@@ -5,8 +5,17 @@
 		"factoryName": {
 			"value": "rcm-ind-df"
 		},
+		"formula1_delta_lake_accountKey": {
+			"value": ""
+		},
 		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
 			"value": "1221-104515-oxspt2q7"
+		},
+		"ergastAPI_properties_typeProperties_url": {
+			"value": "@{concat('http://ergast.com/api/f1/',linkedService().endpoint,'?','limit=',linkedService().limit)}"
+		},
+		"formula1_delta_lake_properties_typeProperties_url": {
+			"value": "https://formuladldev.dfs.core.windows.net/"
 		},
 		"rcminddb_properties_typeProperties_server": {
 			"value": "rcm-ind.database.windows.net"
