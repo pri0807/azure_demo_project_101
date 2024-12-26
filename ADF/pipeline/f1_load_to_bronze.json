@@ -48,6 +48,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "bronze",
+							"filepath": "''",
 							"filename": "drivers.json"
 						}
 					}
@@ -99,6 +100,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "bronze",
+							"filepath": "''",
 							"filename": "results.json"
 						}
 					}
