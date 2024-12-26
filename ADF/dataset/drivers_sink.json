@@ -9,9 +9,6 @@
 			"container": {
 				"type": "string"
 			},
-			"filepath": {
-				"type": "string"
-			},
 			"filename": {
 				"type": "string"
 			}
