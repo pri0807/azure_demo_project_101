@@ -1,0 +1,20 @@
+{
+	"name": "AzureDatabricks1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-931282571205276.16.azuredatabricks.net",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "rcmindkeyvalutdev",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "rcm-ind-databrick-ws"
+			},
+			"existingClusterId": "1221-104515-oxspt2q7"
+		}
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"name": "rcmindsto",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://devrcmadls001.dfs.core.windows.net/",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "rcmindkeyvalutdev",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "access-key-devrcmadls001"
+			}
+		}
+	}
+}

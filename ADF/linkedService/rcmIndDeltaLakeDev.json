@@ -1,0 +1,20 @@
+{
+	"name": "rcmIndDeltaLakeDev",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricksDeltaLake",
+		"typeProperties": {
+			"domain": "https://adb-931282571205276.16.azuredatabricks.net",
+			"clusterId": "1221-104515-oxspt2q7",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "rcmindkeyvalutdev",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "rcm-ind-databrick-ws"
+			}
+		}
+	}
+}

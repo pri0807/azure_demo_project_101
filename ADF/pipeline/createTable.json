@@ -1,0 +1,126 @@
+{
+	"name": "createTable",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.dynamicTable",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CreateEMRTables",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"wildcardFolderPath": "hospital-b",
+										"wildcardFileName": {
+											"value": "@item().fileName",
+											"type": "Expression"
+										},
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"tableOption": "autoCreate",
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "rcm_ind_flatfile_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": "setup",
+										"file_path": "*",
+										"file_name": "*"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "rcm_ind_emr_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"database_name": "trendytech-hospital-b",
+										"schema_name": "dbo",
+										"table_name": {
+											"value": "@item().tableName",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"filepath": {
+				"type": "String"
+			},
+			"dynamicTable": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"fileName": "departments.csv",
+						"tableName": "departments"
+					},
+					{
+						"fileName": "encounters.csv",
+						"tableName": "encounters"
+					},
+					{
+						"fileName": "patients.csv",
+						"tableName": "patients"
+					},
+					{
+						"fileName": "providers.csv",
+						"tableName": "providers"
+					},
+					{
+						"fileName": "transactions.csv",
+						"tableName": "transactions"
+					}
+				]
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-12-17T05:13:52Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

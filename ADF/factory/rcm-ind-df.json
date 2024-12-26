@@ -1,0 +1,9 @@
+{
+	"name": "rcm-ind-df",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "48536467-b9bb-4833-b029-a032be1b66a5",
+		"tenantId": "0af421f4-74b5-4d12-a261-5a001d60e696"
+	}
+}
