@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "rcm-ind-df"
+		},
+		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
+			"value": "1221-104515-oxspt2q7"
+		},
+		"rcminddb_properties_typeProperties_server": {
+			"value": "rcm-ind.database.windows.net"
+		},
+		"rcminddb_properties_typeProperties_database": {
+			"value": "@{linkedService().database_name}"
+		},
+		"rcminddb_properties_typeProperties_userName": {
+			"value": "pri060"
+		},
+		"rcmindkeyvalutdev_properties_typeProperties_baseUrl": {
+			"value": "https://rcm-ind-kv-dev.vault.azure.net/"
+		},
+		"rcmindsto_properties_typeProperties_url": {
+			"value": "https://devrcmadls001.dfs.core.windows.net/"
+		}
+	}
+}
