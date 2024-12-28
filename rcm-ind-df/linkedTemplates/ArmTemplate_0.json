@@ -354,6 +354,26 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/load_logs')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "formula1_metastore",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureDatabricksDeltaLakeDataset",
+				"typeProperties": {
+					"table": "load_logs"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/formula1_metastore')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/rcm_ind_delta_lake_ds')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -528,26 +548,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/load_logs')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "formula1_metastore",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureDatabricksDeltaLakeDataset",
-				"typeProperties": {
-					"table": "load_logs"
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/formula1_metastore')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/createTable')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -707,7 +707,8 @@
 								"referenceName": "config",
 								"type": "DatasetReference",
 								"parameters": {}
-							}
+							},
+							"firstRowOnly": false
 						}
 					},
 					{
