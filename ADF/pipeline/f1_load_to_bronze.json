@@ -21,7 +21,8 @@
 					"dataset": {
 						"referenceName": "config",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			},
 			{
