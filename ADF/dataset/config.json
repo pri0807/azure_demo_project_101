@@ -1,0 +1,37 @@
+{
+	"name": "config",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "formula1_metastore",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureDatabricksDeltaLakeDataset",
+		"typeProperties": {
+			"database": "audit",
+			"table": "job_config"
+		},
+		"schema": [
+			{
+				"name": "SOURCE",
+				"type": "string"
+			},
+			{
+				"name": "ENDPOINT",
+				"type": "string"
+			},
+			{
+				"name": "LOAD_TYPE",
+				"type": "string"
+			},
+			{
+				"name": "TARGET",
+				"type": "string"
+			},
+			{
+				"name": "DATE_MODIFIED",
+				"type": "timestamp"
+			}
+		]
+	}
+}
