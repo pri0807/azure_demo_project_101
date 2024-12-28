@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup1",
+				"name": "config_lkup",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -13,7 +13,125 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureDatabricksDeltaLakeSource"
+					},
+					"dataset": {
+						"referenceName": "config",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "ForEach_Source_Endpoint",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "config_lkup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('config_lkup').output.value",
+						"type": "Expression"
+					},
+					"batchCount": 12,
+					"activities": [
+						{
+							"name": "source_to_bronze",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "bronze_source",
+									"type": "DatasetReference",
+									"parameters": {
+										"end_point": {
+											"value": "@item().end_point",
+											"type": "Expression"
+										},
+										"api_url": {
+											"value": "@item().SOURCE",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "bronze_sink",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@item().TARGET",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@concat(item().end_point,'.json')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "update_load_logs",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "source_to_bronze",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": []
+						}
+					]
+				}
 			}
 		],
 		"annotations": []

@@ -1,0 +1,15 @@
+{
+	"name": "load_logs",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "formula1_metastore",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureDatabricksDeltaLakeDataset",
+		"typeProperties": {
+			"table": "load_logs"
+		},
+		"schema": []
+	}
+}
