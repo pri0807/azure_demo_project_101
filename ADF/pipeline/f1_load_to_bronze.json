@@ -128,7 +128,20 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": []
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureDatabricksDeltaLakeSource",
+									"query": {
+										"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''','bronze',''',''',item().end_point,''',''',activity('source_to_bronze').output.rowscopied,''')')",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "load_logs",
+									"type": "DatasetReference"
+								}
+							}
 						}
 					]
 				}
