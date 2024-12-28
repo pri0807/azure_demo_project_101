@@ -271,7 +271,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"end_point": {
-													"value": "@item().end_point",
+													"value": "@item().ENDPOINT",
 													"type": "Expression"
 												},
 												"api_url": {
@@ -291,7 +291,7 @@
 													"type": "Expression"
 												},
 												"filename": {
-													"value": "@concat(item().end_point,'.json')",
+													"value": "@concat(item().ENDPOINT,'.json')",
 													"type": "Expression"
 												}
 											}
@@ -321,7 +321,7 @@
 										"source": {
 											"type": "AzureDatabricksDeltaLakeSource",
 											"query": {
-												"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''','bronze',''',''',item().end_point,''',''',activity('source_to_bronze').output.rowscopied,''')')",
+												"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''','bronze',''',''',item().ENDPOINT,''',''',activity('source_to_bronze').output.rowscopied,''')')",
 												"type": "Expression"
 											}
 										},
