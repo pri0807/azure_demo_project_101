@@ -20,7 +20,7 @@
 						"storeSettings": {
 							"type": "HttpReadSettings",
 							"requestMethod": "GET",
-							"additionalHeaders": "Accept: application/json",
+							"additionalHeaders": "\"Accept\": \"application/json\"",
 							"requestTimeout": ""
 						},
 						"formatSettings": {
