@@ -19,7 +19,9 @@
 						"type": "JsonSource",
 						"storeSettings": {
 							"type": "HttpReadSettings",
-							"requestMethod": "GET"
+							"requestMethod": "GET",
+							"additionalHeaders": "Accept: application/json",
+							"requestTimeout": ""
 						},
 						"formatSettings": {
 							"type": "JsonReadSettings"
@@ -52,7 +54,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "bronze",
-							"filename": "seasons.xml"
+							"filename": "seasons.json"
 						}
 					}
 				]
