@@ -1,0 +1,30 @@
+{
+	"name": "parse_seasons",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "bronze_sink",
+						"type": "DatasetReference"
+					},
+					"name": "seasons"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"parameters{",
+				"     container as string,",
+				"     filename as string",
+				"}",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'singleDocument') ~> seasons"
+			]
+		}
+	}
+}
