@@ -1,20 +1,34 @@
 {
-	"name": "drivers_source",
+	"name": "bronze_source",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ergastAPI",
 			"type": "LinkedServiceReference",
 			"parameters": {
-				"endpoint": "drivers.json",
-				"limit": "1000"
+				"endpoint": {
+					"value": "@dataset().end_point",
+					"type": "Expression"
+				},
+				"limit": "1000",
+				"api_url": {
+					"value": "@dataset().api_url",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"end_point": {
+				"type": "string"
+			},
+			"api_url": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
 			"location": {
-				"type": "HttpServerLocation",
-				"relativeUrl": "drivers.json"
+				"type": "HttpServerLocation"
 			}
 		},
 		"schema": {}

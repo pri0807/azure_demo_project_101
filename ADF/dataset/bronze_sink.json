@@ -1,5 +1,5 @@
 {
-	"name": "drivers_sink",
+	"name": "bronze_sink",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "formula1_delta_lake",
