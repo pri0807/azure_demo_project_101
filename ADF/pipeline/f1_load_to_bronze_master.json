@@ -43,7 +43,7 @@
 						"referenceName": "bronze_source",
 						"type": "DatasetReference",
 						"parameters": {
-							"end_point": "seasons",
+							"end_point": "seasons.json",
 							"api_url": "http://ergast.com/api/f1/"
 						}
 					}
