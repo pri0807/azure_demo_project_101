@@ -13,7 +13,7 @@
 		},
 		"ergastAPI_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "@{concat('http://ergast.com/api/f1/',linkedService().endpoint,'?','limit=',linkedService().limit)}"
+			"defaultValue": "@{concat(linkedService().api_url,linkedService().endpoint,'?','limit=',linkedService().limit)}"
 		},
 		"formula1_delta_lake_properties_typeProperties_url": {
 			"type": "string",
@@ -59,6 +59,9 @@
 					},
 					"limit": {
 						"type": "string"
+					},
+					"api_url": {
+						"type": "string"
 					}
 				},
 				"annotations": [],
@@ -102,7 +105,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/drivers_sink')]",
+			"name": "[concat(parameters('factoryName'), '/bronze_sink')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -140,7 +143,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/drivers_source')]",
+			"name": "[concat(parameters('factoryName'), '/bronze_source')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -148,81 +151,30 @@
 					"referenceName": "ergastAPI",
 					"type": "LinkedServiceReference",
 					"parameters": {
-						"endpoint": "drivers.json",
-						"limit": "1000"
-					}
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "HttpServerLocation",
-						"relativeUrl": "drivers.json"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ergastAPI')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/results_sink')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "formula1_delta_lake",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"container": {
-						"type": "string"
-					},
-					"filename": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().filename",
+						"endpoint": {
+							"value": "@dataset().end_point",
 							"type": "Expression"
 						},
-						"fileSystem": {
-							"value": "@dataset().container",
+						"limit": "1000",
+						"api_url": {
+							"value": "@dataset().api_url",
 							"type": "Expression"
 						}
 					}
 				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/formula1_delta_lake')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/results_source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ergastAPI",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"endpoint": "results.json",
-						"limit": "1000"
+				"parameters": {
+					"end_point": {
+						"type": "string"
+					},
+					"api_url": {
+						"type": "string"
 					}
 				},
 				"annotations": [],
 				"type": "Json",
 				"typeProperties": {
 					"location": {
-						"type": "HttpServerLocation",
-						"relativeUrl": "results.json"
+						"type": "HttpServerLocation"
 					}
 				},
 				"schema": {}
@@ -249,6 +201,30 @@
 						"secretName": "rcm-ind-databrick-ws"
 					},
 					"existingClusterId": "[parameters('AzureDatabricks1_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/rcmindkeyvalutdev')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/formula1_metastore')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricksDeltaLake",
+				"typeProperties": {
+					"domain": "https://adb-3066104143265505.5.azuredatabricks.net",
+					"clusterId": "1226-102120-7kfiszda",
+					"accessToken": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "rcmindkeyvalutdev",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "formula1-dbr-ws"
+					}
 				}
 			},
 			"dependsOn": [
@@ -336,126 +312,45 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/f1_load_to_bronze')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/config')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
+				"linkedServiceName": {
+					"referenceName": "formula1_metastore",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureDatabricksDeltaLakeDataset",
+				"typeProperties": {
+					"database": "audit",
+					"table": "job_config"
+				},
+				"schema": [
 					{
-						"name": "Copy drivers data",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "HttpReadSettings",
-									"requestMethod": "GET"
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "drivers_source",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "drivers_sink",
-								"type": "DatasetReference",
-								"parameters": {
-									"container": "bronze",
-									"filename": "drivers.json"
-								}
-							}
-						]
+						"name": "SOURCE",
+						"type": "string"
 					},
 					{
-						"name": "Copy results data",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "HttpReadSettings",
-									"requestMethod": "GET"
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "results_source",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "results_sink",
-								"type": "DatasetReference",
-								"parameters": {
-									"container": "bronze",
-									"filename": "results.json"
-								}
-							}
-						]
+						"name": "ENDPOINT",
+						"type": "string"
+					},
+					{
+						"name": "LOAD_TYPE",
+						"type": "string"
+					},
+					{
+						"name": "TARGET",
+						"type": "string"
+					},
+					{
+						"name": "DATE_MODIFIED",
+						"type": "timestamp"
 					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
+				]
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/drivers_source')]",
-				"[concat(variables('factoryId'), '/datasets/drivers_sink')]",
-				"[concat(variables('factoryId'), '/datasets/results_source')]",
-				"[concat(variables('factoryId'), '/datasets/results_sink')]"
+				"[concat(variables('factoryId'), '/linkedServices/formula1_metastore')]"
 			]
 		},
 		{
@@ -633,6 +528,26 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/load_logs')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "formula1_metastore",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureDatabricksDeltaLakeDataset",
+				"typeProperties": {
+					"table": "load_logs"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/formula1_metastore')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/createTable')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -764,6 +679,171 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/rcm_ind_flatfile_ds')]",
 				"[concat(variables('factoryId'), '/datasets/rcm_ind_emr_ds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/f1_load_to_bronze')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "config_lkup",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureDatabricksDeltaLakeSource"
+							},
+							"dataset": {
+								"referenceName": "config",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "ForEach_Source_Endpoint",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "config_lkup",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('config_lkup').output.value",
+								"type": "Expression"
+							},
+							"batchCount": 12,
+							"activities": [
+								{
+									"name": "source_to_bronze",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "HttpReadSettings",
+												"requestMethod": "GET"
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "bronze_source",
+											"type": "DatasetReference",
+											"parameters": {
+												"end_point": {
+													"value": "@item().end_point",
+													"type": "Expression"
+												},
+												"api_url": {
+													"value": "@item().SOURCE",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "bronze_sink",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": {
+													"value": "@item().TARGET",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@concat(item().end_point,'.json')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "update_load_logs",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "source_to_bronze",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureDatabricksDeltaLakeSource",
+											"query": {
+												"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''','bronze',''',''',item().end_point,''',''',activity('source_to_bronze').output.rowscopied,''')')",
+												"type": "Expression"
+											}
+										},
+										"dataset": {
+											"referenceName": "load_logs",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/config')]",
+				"[concat(variables('factoryId'), '/datasets/bronze_source')]",
+				"[concat(variables('factoryId'), '/datasets/bronze_sink')]",
+				"[concat(variables('factoryId'), '/datasets/load_logs')]"
 			]
 		},
 		{
