@@ -1,0 +1,63 @@
+{
+	"name": "f1_load_to_bronze_master",
+	"properties": {
+		"activities": [
+			{
+				"name": "load_seaons_data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "bronze_source",
+						"type": "DatasetReference",
+						"parameters": {
+							"end_point": "seasons",
+							"api_url": "http://ergast.com/api/f1/"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "bronze_sink",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "bronze",
+							"filename": "seasons.xml"
+						}
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
