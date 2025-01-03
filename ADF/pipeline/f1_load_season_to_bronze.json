@@ -1,0 +1,28 @@
+{
+	"name": "f1_load_season_to_bronze",
+	"properties": {
+		"activities": [
+			{
+				"name": "load_seasons",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/vart.pant@outlook.com/azure_formula1_prj/silver/bronze_to_silver_f1_seasons"
+				},
+				"linkedServiceName": {
+					"referenceName": "f1_dbr",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
