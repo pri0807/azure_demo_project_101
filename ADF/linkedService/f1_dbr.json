@@ -1,0 +1,19 @@
+{
+	"name": "f1_dbr",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-3066104143265505.5.azuredatabricks.net",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "rcmindkeyvalutdev",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "formula1-dbr-ws"
+			},
+			"existingClusterId": "1226-102120-7kfiszda"
+		}
+	}
+}
