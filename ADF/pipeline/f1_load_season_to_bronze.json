@@ -82,7 +82,7 @@
 					"source": {
 						"type": "AzureDatabricksDeltaLakeSource",
 						"query": {
-							"value": "@concat('insert into audtit.load_logs values(''','seasons',''',''','/bronze/','''',activity('load_seaons_data').output.dataWritten,utcNow())",
+							"value": "@concat('insert into audit.load_logs values (''','http://ergast.com/api/f1/seasons.json',''',''','/bronze/seasons',''',''',activity('load_seaons_data').output.dataWritten,''',''',utcNow(),''')')",
 							"type": "Expression"
 						}
 					},
