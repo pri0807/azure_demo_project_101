@@ -11,6 +11,9 @@
 			},
 			"filename": {
 				"type": "string"
+			},
+			"season": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -20,6 +23,10 @@
 				"type": "AzureBlobFSLocation",
 				"fileName": {
 					"value": "@dataset().filename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().season",
 					"type": "Expression"
 				},
 				"fileSystem": {

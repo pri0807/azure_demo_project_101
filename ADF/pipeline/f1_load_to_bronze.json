@@ -40,7 +40,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('seasons').output.season",
+						"value": "@activity('seasons').output.value",
 						"type": "Expression"
 					},
 					"batchCount": 6,
@@ -151,19 +151,23 @@
 		],
 		"parameters": {
 			"SOURCE": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "http://ergast.com/api/f1/"
 			},
 			"ENDPOINT": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "drivers"
 			},
 			"SEASON": {
 				"type": "string"
 			},
 			"LOAD_TYPE": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "FULL"
 			},
 			"TARGET": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "bronze/"
 			}
 		},
 		"annotations": []
