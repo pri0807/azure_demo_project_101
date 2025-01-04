@@ -1,0 +1,171 @@
+{
+	"name": "f1_load_to_bronze",
+	"properties": {
+		"activities": [
+			{
+				"name": "seasons",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureDatabricksDeltaLakeSource",
+						"query": "select distinct season from silver.f1_seasons"
+					},
+					"dataset": {
+						"referenceName": "silver_source",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "seasons",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('seasons').output.season",
+						"type": "Expression"
+					},
+					"batchCount": 6,
+					"activities": [
+						{
+							"name": "source_to_bronze",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "bronze_source",
+									"type": "DatasetReference",
+									"parameters": {
+										"end_point": {
+											"value": "@concat(pipeline().parameters.ENDPOINT,'.json')",
+											"type": "Expression"
+										},
+										"api_url": {
+											"value": "@concat(pipeline().parameters.SOURCE,item().season,'/')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "bronze_sink",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": {
+											"value": "@pipeline().parameters.TARGET",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@concat(pipeline().parameters.ENDPOINT,'.json')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "update_load_logs",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "source_to_bronze",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureDatabricksDeltaLakeSource",
+									"query": {
+										"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,item().season,'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('''/bronze/''',item().ENDPOINT),''',''',activity('source_to_bronze').output.rowscopied,''')')",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "load_logs",
+									"type": "DatasetReference"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"SOURCE": {
+				"type": "string"
+			},
+			"ENDPOINT": {
+				"type": "string"
+			},
+			"SEASON": {
+				"type": "string"
+			},
+			"LOAD_TYPE": {
+				"type": "string"
+			},
+			"TARGET": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
