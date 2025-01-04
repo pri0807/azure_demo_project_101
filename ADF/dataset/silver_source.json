@@ -1,0 +1,12 @@
+{
+	"name": "silver_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "formula1_metastore",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureDatabricksDeltaLakeDataset",
+		"schema": []
+	}
+}

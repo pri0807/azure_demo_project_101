@@ -1,5 +1,5 @@
 {
-	"name": "f1_load_to_bronze",
+	"name": "f1_load_to_bronze_master",
 	"properties": {
 		"activities": [
 			{
@@ -7,7 +7,7 @@
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "load_seasons_nb",
+						"activity": "load_seasons_silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -35,14 +35,7 @@
 			{
 				"name": "ForEach_Source_Endpoint",
 				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "config_lkup",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -150,12 +143,62 @@
 									"type": "DatasetReference"
 								}
 							}
+						},
+						{
+							"name": "Check Load Type",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(item().LOAD_TYPE,'FULL')",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "seasons",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": []
+									}
+								]
+							}
 						}
 					]
 				}
 			},
 			{
-				"name": "load_seasons_nb",
+				"name": "load_seasons_silver",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "load_seasons_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "f1_load_seasons_to_silver",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "load_seasons_bronze",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
@@ -164,7 +207,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "f1_load_season_to_bronze",
+						"referenceName": "f1_load_seasons_to_bronze",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
