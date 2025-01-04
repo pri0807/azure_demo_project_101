@@ -107,6 +107,10 @@
 										"filename": {
 											"value": "@concat(pipeline().parameters.ENDPOINT,'.json')",
 											"type": "Expression"
+										},
+										"season": {
+											"value": "@concat(pipeline().parameters.ENDPOINT,'/',item().season)",
+											"type": "Expression"
 										}
 									}
 								}
@@ -135,7 +139,7 @@
 								"source": {
 									"type": "AzureDatabricksDeltaLakeSource",
 									"query": {
-										"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,item().season,'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('''/bronze/''',item().ENDPOINT),''',''',activity('source_to_bronze').output.rowscopied,''')')",
+										"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,item().season,'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('/bronze/',pipeline().parameters.ENDPOINT),''',''',activity('source_to_bronze').output.dataWritten,''')')",
 										"type": "Expression"
 									}
 								},
