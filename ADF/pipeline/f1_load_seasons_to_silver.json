@@ -1,10 +1,10 @@
 {
-	"name": "f1_load_to_bronze_master",
+	"name": "f1_load_seasons_to_silver",
 	"properties": {
 		"activities": [
 			{
-				"name": "load_seaons_data",
-				"type": "Copy",
+				"name": "load_seasons",
+				"type": "DatabricksNotebook",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,49 +15,12 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "JsonSource",
-						"storeSettings": {
-							"type": "HttpReadSettings",
-							"requestMethod": "GET",
-							"additionalHeaders": "Accept: application/json",
-							"requestTimeout": ""
-						},
-						"formatSettings": {
-							"type": "JsonReadSettings"
-						}
-					},
-					"sink": {
-						"type": "JsonSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings"
-						},
-						"formatSettings": {
-							"type": "JsonWriteSettings"
-						}
-					},
-					"enableStaging": false
+					"notebookPath": "/Repos/vart.pant@outlook.com/azure_formula1_prj/silver/bronze_to_silver_f1_seasons"
 				},
-				"inputs": [
-					{
-						"referenceName": "bronze_source",
-						"type": "DatasetReference",
-						"parameters": {
-							"end_point": "seasons.json",
-							"api_url": "http://ergast.com/api/f1/"
-						}
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "bronze_sink",
-						"type": "DatasetReference",
-						"parameters": {
-							"container": "bronze",
-							"filename": "seasons.json"
-						}
-					}
-				]
+				"linkedServiceName": {
+					"referenceName": "f1_dbr",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"annotations": []
