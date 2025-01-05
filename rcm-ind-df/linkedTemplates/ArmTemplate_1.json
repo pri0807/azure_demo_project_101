@@ -60,7 +60,7 @@
 								"value": "@activity('seasons').output.value",
 								"type": "Expression"
 							},
-							"batchCount": 6,
+							"isSequential": true,
 							"activities": [
 								{
 									"name": "source_to_bronze",
@@ -817,7 +817,7 @@
 								"value": "@activity('config_lkup').output.value",
 								"type": "Expression"
 							},
-							"batchCount": 4,
+							"isSequential": true,
 							"activities": [
 								{
 									"name": "Check Load Type",
@@ -844,7 +844,28 @@
 														"type": "PipelineReference"
 													},
 													"waitOnCompletion": true,
-													"parameters": {}
+													"parameters": {
+														"SOURCE": {
+															"value": "@item().SOURCE",
+															"type": "Expression"
+														},
+														"ENDPOINT": {
+															"value": "@item().ENDPOINT",
+															"type": "Expression"
+														},
+														"SEASON": {
+															"value": "@item().SEASON",
+															"type": "Expression"
+														},
+														"LOAD_TYPE": {
+															"value": "@item().LOAD_TYPE",
+															"type": "Expression"
+														},
+														"TARGET": {
+															"value": "@item().TARGET",
+															"type": "Expression"
+														}
+													}
 												}
 											}
 										],
@@ -863,7 +884,28 @@
 														"type": "PipelineReference"
 													},
 													"waitOnCompletion": true,
-													"parameters": {}
+													"parameters": {
+														"SOURCE": {
+															"value": "@item().SOURCE",
+															"type": "Expression"
+														},
+														"ENDPOINT": {
+															"value": "@item().ENDPOINT",
+															"type": "Expression"
+														},
+														"SEASON": {
+															"value": "@item().SEASON",
+															"type": "Expression"
+														},
+														"LOAD_TYPE": {
+															"value": "@item().LOAD_TYPE",
+															"type": "Expression"
+														},
+														"TARGET": {
+															"value": "@item().TARGET",
+															"type": "Expression"
+														}
+													}
 												}
 											}
 										]
