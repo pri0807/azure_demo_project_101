@@ -62,9 +62,9 @@
 									"value": "@equals(item().LOAD_TYPE,'FULL')",
 									"type": "Expression"
 								},
-								"ifTrueActivities": [
+								"ifFalseActivities": [
 									{
-										"name": "Execute Pipeline1",
+										"name": "load_to_bronze_inc",
 										"type": "ExecutePipeline",
 										"dependsOn": [],
 										"policy": {
@@ -73,7 +73,25 @@
 										"userProperties": [],
 										"typeProperties": {
 											"pipeline": {
-												"referenceName": "f1_load_to_bronze",
+												"referenceName": "f1_load_to_bronze_incremental",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "load to bronze full",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"policy": {
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "f1_load_to_bronze_full",
 												"type": "PipelineReference"
 											},
 											"waitOnCompletion": true

@@ -17,12 +17,16 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureDatabricksDeltaLakeSource",
-						"query": "select * from audit.job_config where endpoint!='seasons'"
+						"query": {
+							"value": "@concat('select * from audit.job_config where endpoint!=''','seasons',''' and endpoint=''',pipeline().parameters.ENDPOINT,'''')",
+							"type": "Expression"
+						}
 					},
 					"dataset": {
 						"referenceName": "config",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": true
 				}
 			},
 			{
@@ -76,7 +80,7 @@
 								"type": "Expression"
 							},
 							"api_url": {
-								"value": "@concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.value.season),1)),'/')",
+								"value": "@concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.firstRow.season),1)),'/')",
 								"type": "Expression"
 							}
 						}
@@ -96,7 +100,7 @@
 								"type": "Expression"
 							},
 							"season": {
-								"value": "@concat(pipeline().parameters.ENDPOINT,'/',string(add(int(activity('get load config').output.value.season),1)))",
+								"value": "@concat(pipeline().parameters.ENDPOINT,'/',string(add(int(activity('get load config').output.firstRow.season),1)))",
 								"type": "Expression"
 							}
 						}
@@ -126,7 +130,7 @@
 					"source": {
 						"type": "AzureDatabricksDeltaLakeSource",
 						"query": {
-							"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.value.season),1)),'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('/bronze/',pipeline().parameters.ENDPOINT),''',''',activity('source_to_bronze_inc').output.dataWritten,''')')",
+							"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.firstRow.season),1)),'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('/bronze/',pipeline().parameters.ENDPOINT),''',''',activity('source_to_bronze_inc').output.dataWritten,''')')",
 							"type": "Expression"
 						}
 					},
@@ -159,7 +163,7 @@
 					"source": {
 						"type": "AzureDatabricksDeltaLakeSource",
 						"query": {
-							"value": "@concat('update audit.job_config set season=''',string(add(int(activity('get load config').output.value.season),1)),''' where endpoint=''',pipeline().parameters.ENDPOINT,'''')",
+							"value": "@concat('update audit.job_config set season=''',string(add(int(activity('get load config').output.firstRow.season),1)),''',DATE_MODIFIED=''',utcNow(),''' where endpoint=''',pipeline().parameters.ENDPOINT,'''')",
 							"type": "Expression"
 						}
 					},
