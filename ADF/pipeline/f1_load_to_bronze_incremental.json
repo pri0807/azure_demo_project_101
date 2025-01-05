@@ -1,0 +1,196 @@
+{
+	"name": "f1_load_to_bronze_incremental",
+	"properties": {
+		"activities": [
+			{
+				"name": "get load config",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureDatabricksDeltaLakeSource",
+						"query": "select * from audit.job_config where endpoint!='seasons'"
+					},
+					"dataset": {
+						"referenceName": "config",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "source_to_bronze_inc",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "get load config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "bronze_source",
+						"type": "DatasetReference",
+						"parameters": {
+							"end_point": {
+								"value": "@concat(pipeline().parameters.ENDPOINT,'.json')",
+								"type": "Expression"
+							},
+							"api_url": {
+								"value": "@concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.value.season),1)),'/')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "bronze_sink",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.TARGET",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@concat(pipeline().parameters.ENDPOINT,'.json')",
+								"type": "Expression"
+							},
+							"season": {
+								"value": "@concat(pipeline().parameters.ENDPOINT,'/',string(add(int(activity('get load config').output.value.season),1)))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "update_load_logs_inc",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "source_to_bronze_inc",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureDatabricksDeltaLakeSource",
+						"query": {
+							"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.value.season),1)),'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('/bronze/',pipeline().parameters.ENDPOINT),''',''',activity('source_to_bronze_inc').output.dataWritten,''')')",
+							"type": "Expression"
+						}
+					},
+					"dataset": {
+						"referenceName": "load_logs",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "update_job_config_inc",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "source_to_bronze_inc",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureDatabricksDeltaLakeSource",
+						"query": {
+							"value": "@concat('update audit.job_config set season=''',string(add(int(activity('get load config').output.value.season),1)),''' where endpoint=''',pipeline().parameters.ENDPOINT,'''')",
+							"type": "Expression"
+						}
+					},
+					"dataset": {
+						"referenceName": "config",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"SOURCE": {
+				"type": "string",
+				"defaultValue": "http://ergast.com/api/f1/"
+			},
+			"ENDPOINT": {
+				"type": "string",
+				"defaultValue": "drivers"
+			},
+			"SEASON": {
+				"type": "string"
+			},
+			"LOAD_TYPE": {
+				"type": "string",
+				"defaultValue": "INCREMENTAL"
+			},
+			"TARGET": {
+				"type": "string",
+				"defaultValue": "bronze/"
+			}
+		},
+		"annotations": []
+	}
+}
