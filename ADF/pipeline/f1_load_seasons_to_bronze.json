@@ -54,7 +54,8 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "bronze",
-							"filename": "seasons.json"
+							"filename": "seasons.json",
+							"season": "seasons"
 						}
 					}
 				]
