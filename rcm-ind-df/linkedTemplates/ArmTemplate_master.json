@@ -11,13 +11,13 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'formula1_delta_lake'"
 		},
-		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
-			"type": "string",
-			"defaultValue": "1221-104515-oxspt2q7"
-		},
 		"ergastAPI_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "@{concat(linkedService().api_url,linkedService().endpoint,'?','limit=',linkedService().limit)}"
+		},
+		"f1_dbr_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1226-102120-7kfiszda"
 		},
 		"formula1_delta_lake_properties_typeProperties_url": {
 			"type": "string",
@@ -82,8 +82,8 @@
 					"rcmindkeyvalutdev_properties_typeProperties_baseUrl": {
 						"value": "[parameters('rcmindkeyvalutdev_properties_typeProperties_baseUrl')]"
 					},
-					"AzureDatabricks1_properties_typeProperties_existingClusterId": {
-						"value": "[parameters('AzureDatabricks1_properties_typeProperties_existingClusterId')]"
+					"f1_dbr_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('f1_dbr_properties_typeProperties_existingClusterId')]"
 					},
 					"rcminddb_properties_typeProperties_server": {
 						"value": "[parameters('rcminddb_properties_typeProperties_server')]"
@@ -100,6 +100,26 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "rcm-ind-df_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'rcm-ind-df_ArmTemplate_0')]"
+			]
 		}
 	]
 }

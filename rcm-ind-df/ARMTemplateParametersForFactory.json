@@ -8,11 +8,11 @@
 		"formula1_delta_lake_accountKey": {
 			"value": ""
 		},
-		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
-			"value": "1221-104515-oxspt2q7"
-		},
 		"ergastAPI_properties_typeProperties_url": {
 			"value": "@{concat(linkedService().api_url,linkedService().endpoint,'?','limit=',linkedService().limit)}"
+		},
+		"f1_dbr_properties_typeProperties_existingClusterId": {
+			"value": "1226-102120-7kfiszda"
 		},
 		"formula1_delta_lake_properties_typeProperties_url": {
 			"value": "https://formuladldev.dfs.core.windows.net/"
