@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureDatabricksDeltaLakeSource",
-						"query": "select distinct season from silver.f1_seasons where season!='2024'"
+						"query": "select distinct season from silver.f1_seasons"
 					},
 					"dataset": {
 						"referenceName": "silver_source",
@@ -175,7 +175,7 @@
 					"source": {
 						"type": "AzureDatabricksDeltaLakeSource",
 						"query": {
-							"value": "@concat('update audit.job_config set season=(select max(seasons) from silver.f1_seasons) where endpoint=''',pipeline().parameters.ENDPOINT,'''')",
+							"value": "@concat('update audit.job_config set season=(select max(season) from silver.f1_seasons),DATE_MODIFIED=''',utcNow(),''' where endpoint=''',pipeline().parameters.ENDPOINT,'''')\n",
 							"type": "Expression"
 						}
 					},
