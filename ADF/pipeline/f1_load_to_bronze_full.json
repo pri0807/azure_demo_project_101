@@ -1,52 +1,54 @@
 {
-	"name": "f1_load_to_bronze",
+	"name": "f1_load_to_bronze_full",
 	"properties": {
 		"activities": [
 			{
-				"name": "If Condition1",
-				"type": "IfCondition",
+				"name": "seasons",
+				"type": "Lookup",
 				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"expression": {
-						"value": "@equals(pipeline().parameters.LOAD_TYPE,'FULL')",
+					"source": {
+						"type": "AzureDatabricksDeltaLakeSource",
+						"query": "select distinct season from silver.f1_seasons where season!='2024'"
+					},
+					"dataset": {
+						"referenceName": "silver_source",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "For Each Season",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "seasons",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('seasons').output.value",
 						"type": "Expression"
 					},
-					"ifFalseActivities": [
+					"batchCount": 6,
+					"activities": [
 						{
-							"name": "get load config",
-							"type": "Lookup",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureDatabricksDeltaLakeSource",
-									"query": "select * from audit.job_config where endpoint!='seasons'"
-								},
-								"dataset": {
-									"referenceName": "config",
-									"type": "DatasetReference"
-								}
-							}
-						},
-						{
-							"name": "source_to_bronze_inc",
+							"name": "source_to_bronze",
 							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "get load config",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -87,7 +89,7 @@
 											"type": "Expression"
 										},
 										"api_url": {
-											"value": "@concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.value.season),1)),'/')",
+											"value": "@concat(pipeline().parameters.SOURCE,item().season,'/')",
 											"type": "Expression"
 										}
 									}
@@ -107,7 +109,7 @@
 											"type": "Expression"
 										},
 										"season": {
-											"value": "@concat(pipeline().parameters.ENDPOINT,'/',string(add(int(activity('get load config').output.value.season),1)))",
+											"value": "@concat(pipeline().parameters.ENDPOINT,'/',item().season)",
 											"type": "Expression"
 										}
 									}
@@ -115,11 +117,11 @@
 							]
 						},
 						{
-							"name": "update_load_logs_inc",
+							"name": "update_load_logs_full",
 							"type": "Lookup",
 							"dependsOn": [
 								{
-									"activity": "source_to_bronze_inc",
+									"activity": "source_to_bronze",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -137,7 +139,7 @@
 								"source": {
 									"type": "AzureDatabricksDeltaLakeSource",
 									"query": {
-										"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,string(add(int(activity('get load config').output.value.season),1)),'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('/bronze/',pipeline().parameters.ENDPOINT),''',''',activity('source_to_bronze_inc').output.dataWritten,''')')",
+										"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,item().season,'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('/bronze/',pipeline().parameters.ENDPOINT),''',''',activity('source_to_bronze').output.dataWritten,''')')",
 										"type": "Expression"
 									}
 								},
@@ -146,226 +148,41 @@
 									"type": "DatasetReference"
 								}
 							}
-						},
-						{
-							"name": "update_job_config_inc",
-							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "source_to_bronze_inc",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureDatabricksDeltaLakeSource",
-									"query": {
-										"value": "@concat('update audit.job_config set season=''',string(add(int(activity('get load config').output.value.season),1)),''' where endpoint=''',pipeline().parameters.ENDPOINT,'''')",
-										"type": "Expression"
-									}
-								},
-								"dataset": {
-									"referenceName": "config",
-									"type": "DatasetReference"
-								}
-							}
-						}
-					],
-					"ifTrueActivities": [
-						{
-							"name": "seasons",
-							"type": "Lookup",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureDatabricksDeltaLakeSource",
-									"query": "select distinct season from silver.f1_seasons"
-								},
-								"dataset": {
-									"referenceName": "silver_source",
-									"type": "DatasetReference"
-								},
-								"firstRowOnly": false
-							}
-						},
-						{
-							"name": "For Each Season",
-							"type": "ForEach",
-							"dependsOn": [
-								{
-									"activity": "seasons",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"items": {
-									"value": "@activity('seasons').output.value",
-									"type": "Expression"
-								},
-								"batchCount": 6,
-								"activities": [
-									{
-										"name": "source_to_bronze",
-										"type": "Copy",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "JsonSource",
-												"storeSettings": {
-													"type": "HttpReadSettings",
-													"requestMethod": "GET"
-												},
-												"formatSettings": {
-													"type": "JsonReadSettings"
-												}
-											},
-											"sink": {
-												"type": "JsonSink",
-												"storeSettings": {
-													"type": "AzureBlobFSWriteSettings"
-												},
-												"formatSettings": {
-													"type": "JsonWriteSettings"
-												}
-											},
-											"enableStaging": false
-										},
-										"inputs": [
-											{
-												"referenceName": "bronze_source",
-												"type": "DatasetReference",
-												"parameters": {
-													"end_point": {
-														"value": "@concat(pipeline().parameters.ENDPOINT,'.json')",
-														"type": "Expression"
-													},
-													"api_url": {
-														"value": "@concat(pipeline().parameters.SOURCE,item().season,'/')",
-														"type": "Expression"
-													}
-												}
-											}
-										],
-										"outputs": [
-											{
-												"referenceName": "bronze_sink",
-												"type": "DatasetReference",
-												"parameters": {
-													"container": {
-														"value": "@pipeline().parameters.TARGET",
-														"type": "Expression"
-													},
-													"filename": {
-														"value": "@concat(pipeline().parameters.ENDPOINT,'.json')",
-														"type": "Expression"
-													},
-													"season": {
-														"value": "@concat(pipeline().parameters.ENDPOINT,'/',item().season)",
-														"type": "Expression"
-													}
-												}
-											}
-										]
-									},
-									{
-										"name": "update_load_logs_full",
-										"type": "Lookup",
-										"dependsOn": [
-											{
-												"activity": "source_to_bronze",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "AzureDatabricksDeltaLakeSource",
-												"query": {
-													"value": "@concat('insert into audit.load_logs (DATA_SOURCE,TABLE_NAME,ROWS_MODIFIED) VALUES (''',concat(pipeline().parameters.SOURCE,item().season,'/',pipeline().parameters.ENDPOINT,'.json'),''',''',concat('/bronze/',pipeline().parameters.ENDPOINT),''',''',activity('source_to_bronze').output.dataWritten,''')')",
-													"type": "Expression"
-												}
-											},
-											"dataset": {
-												"referenceName": "load_logs",
-												"type": "DatasetReference"
-											}
-										}
-									},
-									{
-										"name": "update_job_config_full",
-										"type": "Lookup",
-										"dependsOn": [
-											{
-												"activity": "source_to_bronze",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "AzureDatabricksDeltaLakeSource",
-												"query": {
-													"value": "@concat('update audit.job_config set season=''','(select max(seasons) from silver.f1_seasons)',''' where endpoint=''',pipeline().parameters.ENDPOINT,'''')",
-													"type": "Expression"
-												}
-											},
-											"dataset": {
-												"referenceName": "config",
-												"type": "DatasetReference"
-											}
-										}
-									}
-								]
-							}
 						}
 					]
+				}
+			},
+			{
+				"name": "update_job_config_full",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "For Each Season",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureDatabricksDeltaLakeSource",
+						"query": {
+							"value": "@concat('update audit.job_config set season=(select max(seasons) from silver.f1_seasons) where endpoint=''',pipeline().parameters.ENDPOINT,'''')",
+							"type": "Expression"
+						}
+					},
+					"dataset": {
+						"referenceName": "config",
+						"type": "DatasetReference"
+					}
 				}
 			}
 		],
