@@ -76,7 +76,29 @@
 												"referenceName": "f1_load_to_bronze_incremental",
 												"type": "PipelineReference"
 											},
-											"waitOnCompletion": true
+											"waitOnCompletion": true,
+											"parameters": {
+												"SOURCE": {
+													"value": "@item().SOURCE",
+													"type": "Expression"
+												},
+												"ENDPOINT": {
+													"value": "@item().ENDPOINT",
+													"type": "Expression"
+												},
+												"SEASON": {
+													"value": "@item().SEASON",
+													"type": "Expression"
+												},
+												"LOAD_TYPE": {
+													"value": "@item().LOAD_TYPE",
+													"type": "Expression"
+												},
+												"TARGET": {
+													"value": "@item().TARGET",
+													"type": "Expression"
+												}
+											}
 										}
 									}
 								],
@@ -94,7 +116,29 @@
 												"referenceName": "f1_load_to_bronze_full",
 												"type": "PipelineReference"
 											},
-											"waitOnCompletion": true
+											"waitOnCompletion": true,
+											"parameters": {
+												"SOURCE": {
+													"value": "@item().SOURCE",
+													"type": "Expression"
+												},
+												"ENDPOINT": {
+													"value": "@item().ENDPOINT",
+													"type": "Expression"
+												},
+												"SEASON": {
+													"value": "@item().SEASON",
+													"type": "Expression"
+												},
+												"LOAD_TYPE": {
+													"value": "@item().LOAD_TYPE",
+													"type": "Expression"
+												},
+												"TARGET": {
+													"value": "@item().TARGET",
+													"type": "Expression"
+												}
+											}
 										}
 									}
 								]
