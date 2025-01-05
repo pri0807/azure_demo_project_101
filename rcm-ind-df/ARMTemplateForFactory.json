@@ -824,7 +824,7 @@
 								"value": "@activity('config_lkup').output.value",
 								"type": "Expression"
 							},
-							"batchCount": 5,
+							"batchCount": 4,
 							"activities": [
 								{
 									"name": "Check Load Type",
